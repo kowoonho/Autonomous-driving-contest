@@ -1,0 +1,15 @@
+### test 0106 21:46
+
+# push
+sudo git add .
+sudo git commit -m "hhk ?th commit"
+sudo git push origin master
+
+# pull
+sudo git pull origin master
+
+
+### 주의사항 
+1. 매일 끝나고 push 할것
+2. pull 이후 vscode에서 저장이 안되면  아래 명령어 입
+    $ sudo chown -R skkcar .

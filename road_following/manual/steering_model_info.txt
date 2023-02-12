@@ -1,0 +1,15 @@
+best_steering_model_0110.pth
+    9500장 bev data (22.01.09 ver)
+best_steering_model_0111.pth
+    9500장 + 10000장 bev & augmentation data (22.01.09 ver)
+best_steering_model_0113.pth
+    9500장 + 10000장 bev & augmentation & roi data (22.01.09 ver)
+best_steering_model_0114.pth
+    33000장 + 350000장 bev & augmentation data (22.01.13 ver)
+best_steering_model_0114a.pth
+    68000장 + 19500장 bev & augmentation data (22.01.09 ver + 22.01.13 ver)
+best_steering_model_0115a.pth
+    33000장 bev + preprocessing data (22.01.13 ver)
+best_steering_model_0116.pth
+    33000장 bev + preprocessing data + binary + roi (22.01.13 ver)
+

@@ -1,0 +1,17 @@
+<<<<<<< HEAD
+### check
+=======
+>>>>>>> 21562b8d1427afa698e93deaf83b65ab3c171aa7
+1. 카메라 인덱스 확인 (ls /dev/video*)
+2. 카메라 관절 각도 확인 (삼별이)
+3. 카메라 해상도 확인
+
+<<<<<<< HEAD
+=======
+4. 가변 저항값 확인 (1/2 : 922, 819)
+>>>>>>> 21562b8d1427afa698e93deaf83b65ab3c171aa7
+
+<v4l-utils 인스톨>
+인스톨 : $ sudo apt install v4l-utils
+해상도 확인 : $ v4l2-ctl -d /dev/video2 --list-formats-ex
+해상도 수정 : $ v4l2-ctl -d /dev/video2 --set-fmt-video=width=1280,height=720
