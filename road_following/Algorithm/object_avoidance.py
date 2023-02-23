@@ -44,13 +44,13 @@ class avoidance():
                     if center_inside(bbox_center) == True and bbox_area > box_threshold:
                         direction = -7
                     else:
-                        if center_inside2(bbox_center) == False:
+                        if center_inside2(bbox_center, xmin = 40, xmax = 600, ymin = 150) == False:
                             break
                 else:
                     if center_inside(bbox_center) == True and bbox_area > box_threshold:
                         direction = 7
                     else:
-                        if center_inside2(bbox_center) == False:
+                        if center_inside2(bbox_center, xmin = 40, xmax = 600, ymin = 150) == False:
                             break
                         
                 message = "a" + str(direction) + "s" + str(self.speed)

@@ -1,5 +1,6 @@
 import process
 import sys
+
 if __name__ == '__main__':
     play_name =sys.argv[1]
     if play_name == "Driving":
@@ -7,7 +8,7 @@ if __name__ == '__main__':
 
         if len(sys.argv) == 4:
             speed_value = sys.argv[3]
-        elif len(sys.argv) == 3:
+        elif len(sys.argv) == 3: # 미션주행속도 : 150 / 시간주행속도 : 255
             if sys.argv[2] == "Mission":
                 speed_value = 150
             else:

@@ -76,13 +76,7 @@ def return_augmented_images(image, style):
 def roi_cutting(image, cutting_idx = 200):
     image = image[cutting_idx:]
     return image
-    # x = np.linspace(0,639,640)
-    # y = np.linspace(0,479,480)
-    # X,Y = np.meshgrid(x,y)    
-    # equation = 200*X - 640 * Y + 640*100 > 0
-    # image[equation] = 0
 
-    return image
 
                                                                                                              
 
@@ -114,11 +108,11 @@ def box_area(box):
     box_area = (p2[0] - p1[0]) * (p2[1] - p1[1])
     return box_area
 
-def center_inside(center):
+def center_inside(center, xmin = 70, xmax = 570, ymin = 150):
     x = center[0]
     y = center[1]
     
-    if 70 < x and x < 570 and y > 150:
+    if xmin < x and x < xmax and y > ymin:
         return True
     else:
         return False
@@ -404,45 +398,7 @@ def is_outside(image): # Is current line outside?
 
     else:
         return 1
-    #pass
 
-def front_line_detect(image):
-    image_original = image.copy()
-    try:
-        img_blur = cv2.GaussianBlur(image_original, (0,0),1)
-        img_edge = cv2.Canny(img_blur, 110,180)
-        lines = cv2.HoughLines(img_edge,1,np.pi/180,30)
-        print(lines)
-        angles = []
-        
-        if(not isinstance(lines, type(None))):
-            
-            for line in lines:
-                for rho, theta in line:
-                    a = np.cos(theta)
-                    b = np.sin(theta)
-                    x0 = a*rho
-                    y0 = b*rho
-                    x1 = int(x0 + 1000*(-b))
-                    y1 = int(y0+1000*(a))
-                    x2 = int(x0 - 1000*(-b))
-                    y2 = int(y0 -1000*(a))
-                if y1 == y2:
-                    angle = 'inf'
-                else:
-                    angle = np.arctan((x2-x1)/(y1-y2))*180/np.pi
-                if -45 < angle and angle < 45:
-                    pass
-                else:
-                    angles.append(angle)
-        
-        return np.average(angles)
-                        
-
-    except Exception as e:
-        _, _, tb = sys.exc_info()
-        print("front line detection error = {}, error line = {}".format(e, tb.tb_lineno))
-        return None
 
 
 def total_process(image, mode = "FRONT"):

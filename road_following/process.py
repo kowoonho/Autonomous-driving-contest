@@ -12,7 +12,7 @@ sys.path.append(os.path.join(rf_dir, "yolov5"))
 from yolov5.models.common import DetectMultiBackend
 from yolov5.utils.general import non_max_suppression
 from utility import *
-from Algorithm.parking_2 import *
+from Algorithm.parking import *
 from Algorithm.Control import total_control, smooth_direction, strengthen_control
 from Algorithm.img_preprocess import total_function, total_function_parking
 from Algorithm.object_avoidance import avoidance
@@ -27,7 +27,7 @@ class DoWork:
         # Camera
         self.front_camera_module = None
         self.rear_camera_module = None
-        self.cam_num = {"FRONT" : 2, "REAR" : 4}
+        self.cam_num = {"FRONT" : 2, "REAR" : 4} #CAM port number
         self.front_cam_name = front_cam_name
         self.rear_cam_name = rear_cam_name
         
@@ -35,13 +35,14 @@ class DoWork:
         self.rf_weight_file = rf_weight_file
         self.detect_weight_file = detect_weight_file
 
-        # self.rf_network = model.ResNet18(weight_file = self.rf_weight_file) if play_name == "Driving" else None
-        self.detect_network = DetectMultiBackend(weights = detect_weight_file)
+        self.rf_network = model.ResNet18(weight_file = self.rf_weight_file) if play_name == "Driving" else None #RoadFollowing Network
+        
+        self.detect_network = DetectMultiBackend(weights = detect_weight_file) #YOLOv5 Network
         self.labels_to_names = {0 : "Crosswalk", 1 : "Green", 2 : "Red", 3 : "Car"}
         
         # Arduino Serial
         self.serial = serial.Serial()
-        self.serial.port = '/dev/ttyUSB0'       ### 아두이노 메가
+        self.serial.port = '/dev/ttyUSB0'       # 아두이노 포트
         self.serial.baudrate = 9600
         
         # Control
@@ -52,7 +53,7 @@ class DoWork:
         self.direction = 0
         
         # Lidar
-        self.lidar_port = '/dev/ttyUSB1'
+        self.lidar_port = '/dev/ttyUSB1' # Lidar Port
         self.lidar_module = None
         
         # Driving type
@@ -61,14 +62,14 @@ class DoWork:
             self.parking_stage = int(parking_stage)
 
         # Weather value
-        self.day_evening_value = 155
+        self.day_evening_value = 155 # Color Filter parameter
         """
         day 200, 190, 180, 170, 165, 155 evening
         """
         # Parking value
-        self.near_detect_value = 600
+        self.near_detect_value = 600 # Parking parameter
 
-    def serial_start(self):
+    def serial_start(self): # Serial Start
         try:
             self.serial.open()
             print("Serial open")
@@ -126,10 +127,8 @@ class DoWork:
                 else:
                     cam_img = self.front_camera_module.read()
                     bird_img = bird_convert(cam_img, self.front_cam_name)
-                    # cv2.imshow("bird", bird_img)
                     preprocess_img = total_function(bird_img, day_evening, self.driving_type)
                     binary_img = cvt_binary(preprocess_img)
-                    # roi_img = roi_cutting(binary_img)
                     
                     draw_img = cam_img.copy()
 
@@ -150,8 +149,8 @@ class DoWork:
                         if self.driving_type == "Time":
                             order_flag = 1
                     
-                    roi_img1 = roi_cutting(binary_img, 250)
-                    roi_img2 = roi_cutting(binary_img, 150)
+                    roi_img1 = roi_cutting(binary_img, 250) # For bottom_value
+                    roi_img2 = roi_cutting(binary_img, 150) # For road_gradient
 
                         
                     _, bottom_value = dominant_gradient(roi_img1)
@@ -163,33 +162,24 @@ class DoWork:
                         self.direction = 0
                         message = 'a' + str(bef_1d) +  's' + str(self.speed)
                         self.serial.write(message.encode())
-                        #print(message)
                         continue    
-                    if is_crosswalk == True:
+                    
+                    
+                    if is_crosswalk == True: # Crosswalk가 보일 경우, traffic_light 위치에 따라 steering
                         day_evening = self.day_evening_value
-                        # road_direction = return_road_direction(road_gradient)
-                        # print(road_gradient)
-                        # print(road_direction)
-                        # final_direction = road_direction
                         if detect[1] != None:
                             final_direction = int(box_control(detect[1]))
                         elif detect[2] != None:
                             final_direction = int(box_control(detect[2]))
                         else:
                             final_direction = 0
-                        #print(final_direction)
                     else:
-                        
-                        road_direction = return_road_direction(road_gradient)
-                        final_direction = strengthen_control(road_direction, road_gradient, bottom_value)
+                        road_direction = return_road_direction(road_gradient) # gradient에 따른 direction
+                        final_direction = strengthen_control(road_direction, road_gradient, bottom_value) # gradient, bottom_value 모두 고려한 direction
                         
 
-
-                    # print('grad: ',road_gradient)
-                    # print('bottom: ', bottom_value)
-                    
-                    # model_direction = torch.argmax(self.rf_network.run(preprocess(roi_img, mode = "test"))).item() - 7
-                    # final_direction = total_control(road_direction, model_direction, bottom_value)
+                    # Use Deep learning to road following
+                    # model_direction = torch.argmax(self.rf_network.run(preprocess(roi_img1, mode = "test"))).item() - 7
                     
                     if order_flag == 0: # stop
                         self.direction = 0
@@ -197,35 +187,24 @@ class DoWork:
                         
                         pass
                     elif order_flag == 1: # go
-                        # self.direction = final_direction
                         self.speed = self.speed_value
                         self.direction = smooth_direction(bef_1d, bef_2d, bef_3d, final_direction)
-                        # print("go")
                         pass
                     
                     elif order_flag == 2: # road change
                         print("road change!")
                         day_evening = self.day_evening_value + 10
                         avoidance_processor = avoidance(self.serial, self.front_camera_module, 
-                                                        self.detect_weight_file, 50)
+                                                        self.detect_weight_file, speed=50)
                         avoidance_processor.action(is_outside(preprocess_img), day_evening)
 
-                    # if self.driving_type == "Time":
-                        # if abs(self.direction) >= 4:
-                            # self.speed -= 10 * (abs(self.direction) - 4)
-
-                    
-                        # if self.direction >=4 and self.direction <=6:
-                        #     # self.direction +=1
-                        #     self.speed -= 20
                     message = 'a' + str(self.direction) +  's' + str(self.speed)
                     self.serial.write(message.encode())
-                    #print(message)
-                    
-                    # cv2.imshow('VideoCombined_detect', draw_img)
-                    # cv2.imshow('VideoCombined_rf', roi_img)
+                    print(message)
+                    cv2.imshow('VideoCombined_detect', draw_img)
+                    cv2.imshow('VideoCombined_rf', roi_img2)
                     cv2.imshow('VideoCombined_rf2', preprocess_img)
-                    
+                                        
                     bef_1d, bef_2d, bef_3d = final_direction, bef_1d, bef_2d
                     pass
                 
@@ -265,12 +244,6 @@ class DoWork:
             time.sleep((0.0001))
     
     def Parking(self):
-        """
-        1. Search Parking location
-        => 잠깐 정지 후에 Parking Position 연산 => 대표값으로 연산
-        2. Ideal Parking Position
-        3. Action
-        """
         
         # parking_direction = 0
         parking_speed = self.speed_value
@@ -302,10 +275,6 @@ class DoWork:
                     scan = np.array(self.lidar_module.iter_scans())
                     condition = lidar_condition(-110, 110, 2000, scan)
                     print(scan[np.where(condition)])
-                    # scan = scan[lidar_condition(-180, 180, 2000, scan)]
-
-                    
-
                     pass
                 
                 if self.parking_stage == 0:

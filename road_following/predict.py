@@ -3,6 +3,15 @@ import cv2
 import torch
 from Networks.model import ResNet18
 from utility import get_resistance_value, preprocess
+import argparse
+from pathlib import Path
+import sys
+
+FILE = Path(__file__).resolve()
+ROOT = FILE.parents[0]
+if str(ROOT) not in sys.path:
+    sys.path.append(str(ROOT))  # add ROOT to PATH
+ROOT = Path(os.path.abspath(ROOT))
 
 test_file_dir_path = "/hdd/woonho/autonomous_driving/rfdata/0111/"
 weight_file = "./model_weight_file/best_steering_model_0115a.pth"
