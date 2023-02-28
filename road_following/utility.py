@@ -378,6 +378,13 @@ def find_nearest(array, value=280):
     
     return left_val, right_val
 
+def center_point(left_idx, right_idx):
+    if left_idx == None or right_idx == None:
+        return None
+    else:
+        return (left_idx + right_idx) / 2
+    
+
 def is_outside(image): # Is current line outside?
     HSV_frame = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     H,S,V = cv2.split(HSV_frame)
@@ -429,8 +436,3 @@ def box_control(box, mode = 'traffic'):
         pass
 
     pass
-
-
-    
-    
-    

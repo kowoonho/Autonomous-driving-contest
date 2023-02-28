@@ -14,9 +14,8 @@ from yolov5.utils.general import non_max_suppression
 from utility import *
 from Algorithm.parking import *
 from Algorithm.Control import total_control, smooth_direction, strengthen_control
-from Algorithm.img_preprocess import total_function, total_function_parking
+from Algorithm.img_preprocess import total_function
 from Algorithm.object_avoidance import avoidance
-from Algorithm.ideal_parking import idealparking
 from Devices.Lidar import LidarModule
 from Dataset.parking_constant import Parking_constant
 class DoWork:
@@ -249,7 +248,6 @@ class DoWork:
         parking_speed = self.speed_value
         self.parking_speed = parking_speed
         distance_threshold = 250
-        bef_stage = self.parking_stage-1
         
         constant = Parking_constant()
         print(constant.new_car_cnt)
@@ -264,8 +262,6 @@ class DoWork:
                     break
                     pass
                 front_cam_img = self.front_camera_module.read()
-                if bef_stage != self.parking_stage:
-                    print("Parking stage : {}".format(self.parking_stage))
                 print("Parking stage : ", self.parking_stage)
 
                 
@@ -602,13 +598,6 @@ class DoWork:
                     print("Program finish")
                     break
 
-
-
-
-                    
-
-
-                
 
                 message = 'a' + str(self.direction) +  's' + str(self.parking_speed)
                 # print(message)

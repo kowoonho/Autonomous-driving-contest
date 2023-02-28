@@ -1,4 +1,4 @@
-from utility import find_nearest, box_area
+from utility import find_nearest, box_area, center_point
 import os
 from pathlib import Path
 import numpy as np
@@ -36,7 +36,7 @@ def strengthen_control(road_direction, road_gradient, bottom_value): # 차선에
         else:
             direction = 7
     else:
-        middle_lane = (left_idx + right_idx)/2
+        middle_lane = center_point(left_idx, right_idx)
         # print("middle lane : ",middle_lane)
 
         if middle_threshold[0] > middle_lane:

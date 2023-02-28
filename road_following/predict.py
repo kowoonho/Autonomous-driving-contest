@@ -13,7 +13,7 @@ if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))  # add ROOT to PATH
 ROOT = Path(os.path.abspath(ROOT))
 
-test_file_dir_path = "/hdd/woonho/autonomous_driving/rfdata/0111/"
+test_file_dir_path = ""
 weight_file = "./model_weight_file/best_steering_model_0115a.pth"
 
 img_list = os.listdir(test_file_dir_path)
